@@ -11,4 +11,8 @@ https://sigrok.org/wiki/Building
 
 https://sigrok.org/wiki/Linux#Building_.28manually.29
 
+### china Saleae classic clones
+
+* USB mini-B
+* CY7C68013A-56PVCXC
 

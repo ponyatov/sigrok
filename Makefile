@@ -1,6 +1,6 @@
-build: sigrok-cli
+build: pulseview
 
-all: dirs libserialport libftdi libsigrok libsigrokdecode sigrok-cli
+all: dirs libserialport libftdi libsigrok libsigrokdecode sigrok-cli pulseview
 
 CWD = $(CURDIR)
 TMP = /tmp
@@ -87,4 +87,19 @@ sigrok-cli: $(SRC)/sigrok-cli/configure
 $(SRC)/sigrok-cli/configure:
 	-git clone --depth=1 git://sigrok.org/sigrok-cli $(SRC)/sigrok-cli
 	cd $(SRC)/sigrok-cli ; ./autogen.sh
+
+############# pulseview
+
+CFG_PULSE =
+
+pulseview: $(SRC)/pulseview/CMakeLists.txt qt5 boost
+	rm -rf $(TMP)/$@ ; mkdir $(TMP)/$@ ; cd $(TMP)/$@ ;\
+		cmake $(CFG_PULSE) $(SRC)/pulseview && $(MAKE_J) && sudo $(MAKE) install
+$(SRC)/pulseview/CMakeLists.txt:
+	-git clone --depth=1 git://sigrok.org/pulseview $(SRC)/pulseview
+
+qt5:
+	sudo apt install qtbase5-dev libqt5svg5-dev && touch $@
+boost:
+	sudo apt install libboost-serialization-dev libboost-filesystem-dev libboost-system-dev && touch $@
 

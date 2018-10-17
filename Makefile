@@ -1,6 +1,6 @@
-build: libsigrokdecode
+build: sigrok-cli
 
-all: dirs libserialport libftdi libsigrok libsigrokdecode
+all: dirs libserialport libftdi libsigrok libsigrokdecode sigrok-cli
 
 CWD = $(CURDIR)
 TMP = /tmp
@@ -37,9 +37,11 @@ LIBFTDI_VER	= 1.4
 LIBFTDI		= libftdi1-$(LIBFTDI_VER)
 LIBFTDI_GZ	= $(LIBFTDI).tar.bz2
 
+CFG_FTDI = -DBUILD_SHARED_LIBS=OFF
+
 libftdi: $(SRC)/$(LIBFTDI)/CMakeLists.txt
 	rm -rf $(TMP)/$@ ; mkdir $(TMP)/$@ ; cd $(TMP)/$@ ;\
-		cmake $(SRC)/$(LIBFTDI) && $(MAKE_J) && sudo $(MAKE) install
+		cmake $(CFG_FTDI) $(SRC)/$(LIBFTDI) && $(MAKE_J) && sudo $(MAKE) install
 $(SRC)/$(LIBFTDI)/CMakeLists.txt: $(GZ)/$(LIBFTDI_GZ)
 	cd $(SRC) ; bzcat $< | tar x && touch $@
 $(GZ)/$(LIBFTDI_GZ):
@@ -66,12 +68,23 @@ $(SRC)/libsigrok/configure: \
 
 ########### libsigrokdecode
 
-CFG_DECODE = $(CFG_ALL) $(CFG_LIBS_ALL)
+CFG_DECODE = $(CFG_ALL) $(CFG_LIBS_ALL) --disable-python
 
 libsigrokdecode: $(SRC)/libsigrokdecode/configure
 	rm -rf $(TMP)/$@ ; mkdir $(TMP)/$@ ; cd $(TMP)/$@ ;\
-		$< $(CFG_SIGROK) && $(MAKE_J) && sudo $(MAKE) install-strip
+		$< $(CFG_DECODE) && $(MAKE_J) && sudo $(MAKE) install-strip
 $(SRC)/libsigrokdecode/configure:
 	-git clone --depth=1 git://sigrok.org/libsigrokdecode $(SRC)/libsigrokdecode
 	cd $(SRC)/libsigrokdecode ; ./autogen.sh
+
+########### sigrok-cli
+
+CFG_CLI = $(CFG_ALL) --disable-python
+
+sigrok-cli: $(SRC)/sigrok-cli/configure
+	rm -rf $(TMP)/$@ ; mkdir $(TMP)/$@ ; cd $(TMP)/$@ ;\
+		$< $(CFG_CLI) && $(MAKE) && sudo $(MAKE) install-strip
+$(SRC)/sigrok-cli/configure:
+	-git clone --depth=1 git://sigrok.org/sigrok-cli $(SRC)/sigrok-cli
+	cd $(SRC)/sigrok-cli ; ./autogen.sh
 

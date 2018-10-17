@@ -1,6 +1,6 @@
-build: libsigrok
+build: libsigrokdecode
 
-all: dirs libserialport libftdi libsigrok
+all: dirs libserialport libftdi libsigrok libsigrokdecode
 
 CWD = $(CURDIR)
 TMP = /tmp
@@ -63,3 +63,15 @@ $(SRC)/libsigrok/configure: \
 	sudo apt install libzip-dev
 /usr/include/glibmm-2.4/glibmm.h:
 	sudo apt install libglibmm-2.4-dev
+
+########### libsigrokdecode
+
+CFG_DECODE = $(CFG_ALL) $(CFG_LIBS_ALL)
+
+libsigrokdecode: $(SRC)/libsigrokdecode/configure
+	rm -rf $(TMP)/$@ ; mkdir $(TMP)/$@ ; cd $(TMP)/$@ ;\
+		$< $(CFG_SIGROK) && $(MAKE_J) && sudo $(MAKE) install-strip
+$(SRC)/libsigrokdecode/configure:
+	-git clone --depth=1 git://sigrok.org/libsigrokdecode $(SRC)/libsigrokdecode
+	cd $(SRC)/libsigrokdecode ; ./autogen.sh
+
